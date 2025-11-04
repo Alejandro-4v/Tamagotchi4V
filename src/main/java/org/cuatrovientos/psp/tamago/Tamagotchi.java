@@ -12,7 +12,7 @@ public class Tamagotchi implements Runnable {
 
     // Estáticas con distintos usos
     private static final Random RANDOM = new Random(); // Random para lo que tarda en comer
-    private static final Date DATE; // Fecha actual que se irá actualizando para medir tiempos en consola
+    private static Date date; // Fecha actual que se irá actualizando para medir tiempos en consola
 
     // Variables generales
     private String nombre;
@@ -24,7 +24,9 @@ public class Tamagotchi implements Runnable {
     // Variables para medir tiempos, estados y saber si mostrar o no mostrar ciertos
     // mensajes
     private long nacimiento;
+
     private long ultimoAseo;
+    private long inicioComida;
 
     private boolean avisadoRiesgoDeMuerte = false;
 
@@ -64,6 +66,36 @@ public class Tamagotchi implements Runnable {
         return estado;
     }
 
+    // Función para empezar el aseo (y modificar el estado, la lógica está en el
+    // run)
+    public void asear() {
+        if (estado == Estado.ASEANDO) {
+            System.out.println("El tamagotchi " + this.nombre + " ya se está aseando...");
+        } else if (estado != Estado.VIVO) {
+            System.out.println("El tamagotchi " + this.nombre + " está ocupado, todavía no puede bañarse...");
+        } else {
+            System.out.println("El tamagotchi " + this.nombre + " está aseándose...");
+            estado = Estado.ASEANDO;
+            inicioAseo = System.currentTimeMillis();
+        }
+    }
+
+    // Función para empezar a comer (y modificar el estado, la lógica está en el
+    // run)
+    public void comerManzana() {
+        if (estado == Estado.COMIENDO) {
+            System.out.println("El tamagotchi " + this.nombre + " ya está comiendo...");
+        } else if (estado != Estado.VIVO) {
+            System.out.println("El tamagotchi " + this.nombre + " está ocupado, todavía no puede comer...");
+        } else {
+            date = new Date();
+            System.out.println("El tamagotchi " + this.nombre + " ha empezado a comer a las " + date.getHours() + ":"
+                    + date.getMinutes() + ":" + date.getSeconds());
+            estado = Estado.COMIENDO;
+            inicioComida = System.currentTimeMillis();
+        }
+    }
+
     // Funciones para obtener tiempos concurridos para cada caso
     private int getTiempoDeVida() {
         return (int) (System.currentTimeMillis() - this.nacimiento);
@@ -81,8 +113,8 @@ public class Tamagotchi implements Runnable {
     }
 
     // Función para morir por sucio
-    public void stinkyDeath() {
-        System.out.println("El tamagotchi " + this.nombre + " ha muerto por cochino");]
+    private void stinkyDeath() {
+        System.out.println("El tamagotchi " + this.nombre + " ha muerto por cochino");
         estado = Estado.MUERTO;
     }
 
