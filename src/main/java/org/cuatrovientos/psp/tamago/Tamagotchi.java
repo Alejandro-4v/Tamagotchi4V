@@ -2,8 +2,13 @@ package org.cuatrovientos.psp.tamago;
 
 import java.util.Random;
 import java.util.Date;
+import java.util.Scanner;
 
+@SuppressWarnings("deprecation")
 public class Tamagotchi implements Runnable {
+
+    // Variable que será modificada para gestionar los juegos concurrentes
+    public static boolean tamagotchiJugando = false;
 
     // Enum para controlar estados
     private enum Estado {
@@ -13,6 +18,7 @@ public class Tamagotchi implements Runnable {
     // Estáticas con distintos usos
     private static final Random RANDOM = new Random(); // Random para lo que tarda en comer
     private static Date date; // Fecha actual que se irá actualizando para medir tiempos en consola
+    private static Scanner sc = new Scanner(System.in); // Scanner para el juego
 
     // Variables generales
     private String nombre;
@@ -24,11 +30,13 @@ public class Tamagotchi implements Runnable {
     // Variables para medir tiempos, estados y saber si mostrar o no mostrar ciertos
     // mensajes
     private long nacimiento;
-
     private long ultimoAseo;
     private long inicioComida;
 
     private boolean avisadoRiesgoDeMuerte = false;
+
+    // Variables para el juego
+    private int numeroParaElCuidador;
 
     public Tamagotchi(String nombre) {
         this.nombre = nombre;
@@ -45,15 +53,43 @@ public class Tamagotchi implements Runnable {
                 kill();
                 break;
             }
-
-            if (estado != Estado.ASEANDO) {
-                if (getTiempoDesdeUltimoAseo() >= 100000 && !avisadoRiesgoDeMuerte) {
+            if (estado == Estado.VIVO) {
+                long tiempoUltimoAseo = getTiempoDesdeUltimoAseo();
+                if (tiempoUltimoAseo >= 100000 && tiempoUltimoAseo < 200000 && !avisadoRiesgoDeMuerte) {
                     System.out.println("El tamagotchi " + this.nombre + " está a punto de morir por cochino");
                     avisadoRiesgoDeMuerte = true;
                 } else if (getTiempoDesdeUltimoAseo() >= 200000) {
                     stinkyDeath();
                     break;
                 }
+            }
+
+            if (estado == Estado.COMIENDO) {
+                if (getTiempoDesdeInicioComida() >= tiempoParaComer * 1000) {
+                    date = new Date();
+                    System.out
+                            .println("El tamagotchi " + this.nombre + " ha terminado de comer a las " + date.getHours()
+                                    + ":" + date.getMinutes() + ":" + date.getSeconds());
+                    estado = Estado.VIVO;
+                }
+            }
+
+            if (estado == Estado.JUGANDO) {
+                int num1 = RANDOM.nextInt(10);
+                int num2 = RANDOM.nextInt(10);
+                while (num1 + num2 > 10) {
+                    num1 = RANDOM.nextInt(10);
+                    num2 = RANDOM.nextInt(10);
+                }
+                System.out.println("La suma entre " + num1 + " y " + num2 + " es...");
+                int respuesta = sc.nextInt();
+                while (respuesta != num1 + num2) {
+                    System.out.println("La suma entre " + num1 + " y " + num2 + " es...");
+                    respuesta = sc.nextInt();
+                }
+                System.out.println("Correcto!");
+                tamagotchiJugando = false;
+                estado = Estado.VIVO;
             }
         }
     }
@@ -76,7 +112,6 @@ public class Tamagotchi implements Runnable {
         } else {
             System.out.println("El tamagotchi " + this.nombre + " está aseándose...");
             estado = Estado.ASEANDO;
-            inicioAseo = System.currentTimeMillis();
         }
     }
 
@@ -96,6 +131,24 @@ public class Tamagotchi implements Runnable {
         }
     }
 
+    // Función para empezar a jugar (y modificar el estado, la lógica está en el
+    // run)
+    public void jugar() {
+        if (estado == Estado.JUGANDO) {
+            System.out.println("El tamagotchi " + this.nombre + " ya está jugando...");
+        } else if (estado != Estado.VIVO) {
+            System.out.println("El tamagotchi " + this.nombre + " está ocupado, todavía no puede jugar...");
+        } else {
+            if (!tamagotchiJugando) {
+                tamagotchiJugando = true;
+                System.out.println("El tamagotchi " + this.nombre + " empieza a jugar");
+                estado = Estado.JUGANDO;
+            } else {
+                System.out.println("Ya hay un tamagotchi jugando...");
+            }
+        }
+    }
+
     // Funciones para obtener tiempos concurridos para cada caso
     private int getTiempoDeVida() {
         return (int) (System.currentTimeMillis() - this.nacimiento);
@@ -103,7 +156,10 @@ public class Tamagotchi implements Runnable {
 
     private int getTiempoDesdeUltimoAseo() {
         return (int) (System.currentTimeMillis() - this.ultimoAseo);
+    }
 
+    private int getTiempoDesdeInicioComida() {
+        return (int) (System.currentTimeMillis() - this.inicioComida);
     }
 
     // Función para matar o morir
