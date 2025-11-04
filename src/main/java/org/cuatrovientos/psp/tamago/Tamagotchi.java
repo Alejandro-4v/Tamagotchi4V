@@ -18,7 +18,7 @@ public class Tamagotchi implements Runnable {
     // Estáticas con distintos usos
     private static final Random RANDOM = new Random(); // Random para lo que tarda en comer
     private static Date date; // Fecha actual que se irá actualizando para medir tiempos en consola
-    private static Scanner sc = new Scanner(System.in); // Scanner para el juego
+    private static final Scanner SC = new Scanner(System.in); // Scanner para el juego
 
     // Variables generales
     private String nombre;
@@ -82,10 +82,10 @@ public class Tamagotchi implements Runnable {
                     num2 = RANDOM.nextInt(10);
                 }
                 System.out.println("La suma entre " + num1 + " y " + num2 + " es...");
-                int respuesta = sc.nextInt();
+                int respuesta = SC.nextInt();
                 while (respuesta != num1 + num2) {
                     System.out.println("La suma entre " + num1 + " y " + num2 + " es...");
-                    respuesta = sc.nextInt();
+                    respuesta = SC.nextInt();
                 }
                 System.out.println("Correcto!");
                 tamagotchiJugando = false;
