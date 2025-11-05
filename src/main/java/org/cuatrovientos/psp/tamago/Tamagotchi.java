@@ -11,7 +11,7 @@ public class Tamagotchi implements Runnable {
     public static boolean tamagotchiJugando = false;
 
     // Enum para controlar estados
-    private enum Estado {
+    public enum Estado {
         VIVO, ASEANDO, JUGANDO, COMIENDO, MUERTO
     }
 
@@ -35,9 +35,6 @@ public class Tamagotchi implements Runnable {
 
     private boolean avisadoRiesgoDeMuerte = false;
 
-    // Variables para el juego
-    private int numeroParaElCuidador;
-
     public Tamagotchi(String nombre) {
         this.nombre = nombre;
         this.tiempoParaComer = RANDOM.nextInt(5);
@@ -47,18 +44,20 @@ public class Tamagotchi implements Runnable {
 
     @Override
     public void run() {
+            System.out.println("¡Estoy vivo! Soy el tamagotchi " + nombre);
+
         while (estado != Estado.MUERTO) {
 
             if (estado == Estado.VIVO && getTiempoDeVida() >= 300000) {
-                kill();
+                die();
                 break;
             }
             if (estado == Estado.VIVO) {
                 long tiempoUltimoAseo = getTiempoDesdeUltimoAseo();
-                if (tiempoUltimoAseo >= 100000 && tiempoUltimoAseo < 200000 && !avisadoRiesgoDeMuerte) {
+                if (tiempoUltimoAseo >= 5000 && tiempoUltimoAseo < 10000 && !avisadoRiesgoDeMuerte) {
                     System.out.println("El tamagotchi " + this.nombre + " está a punto de morir por cochino");
                     avisadoRiesgoDeMuerte = true;
-                } else if (getTiempoDesdeUltimoAseo() >= 200000) {
+                } else if (getTiempoDesdeUltimoAseo() >= 10000) {
                     stinkyDeath();
                     break;
                 }
@@ -82,10 +81,10 @@ public class Tamagotchi implements Runnable {
                     num2 = RANDOM.nextInt(10);
                 }
                 System.out.println("La suma entre " + num1 + " y " + num2 + " es...");
-                int respuesta = SC.nextInt();
+                int respuesta = Integer.parseInt(SC.nextLine());
                 while (respuesta != num1 + num2) {
                     System.out.println("La suma entre " + num1 + " y " + num2 + " es...");
-                    respuesta = SC.nextInt();
+                    respuesta = Integer.parseInt(SC.nextLine());
                 }
                 System.out.println("Correcto!");
                 tamagotchiJugando = false;
@@ -141,8 +140,8 @@ public class Tamagotchi implements Runnable {
         } else {
             if (!tamagotchiJugando) {
                 tamagotchiJugando = true;
-                System.out.println("El tamagotchi " + this.nombre + " empieza a jugar");
                 estado = Estado.JUGANDO;
+                System.out.println("El tamagotchi " + this.nombre + " empieza a jugar");
             } else {
                 System.out.println("Ya hay un tamagotchi jugando...");
             }
@@ -162,10 +161,16 @@ public class Tamagotchi implements Runnable {
         return (int) (System.currentTimeMillis() - this.inicioComida);
     }
 
-    // Función para matar o morir
-    public void kill() {
+    // Función para morir
+    private void die() {
         System.out.println("El tamagotchi " + this.nombre + " ha muerto");
         estado = Estado.MUERTO;
+    }
+
+    // Función para matar
+    public void kill() {
+        System.out.println("¡No! ¿Por qué me haces esto? Eres cruel...");
+        die();
     }
 
     // Función para morir por sucio
