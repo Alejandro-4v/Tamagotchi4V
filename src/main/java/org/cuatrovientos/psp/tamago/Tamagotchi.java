@@ -54,10 +54,10 @@ public class Tamagotchi implements Runnable {
             }
             if (estado == Estado.VIVO) {
                 long tiempoUltimoAseo = getTiempoDesdeUltimoAseo();
-                if (tiempoUltimoAseo >= 5000 && tiempoUltimoAseo < 10000 && !avisadoRiesgoDeMuerte) {
+                if (tiempoUltimoAseo >= 100000 && tiempoUltimoAseo < 200000 && !avisadoRiesgoDeMuerte) {
                     System.out.println("El tamagotchi " + this.nombre + " está a punto de morir por cochino");
                     avisadoRiesgoDeMuerte = true;
-                } else if (getTiempoDesdeUltimoAseo() >= 10000) {
+                } else if (getTiempoDesdeUltimoAseo() >= 200000) {
                     stinkyDeath();
                     break;
                 }
