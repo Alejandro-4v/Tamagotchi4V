@@ -1,0 +1,1 @@
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Alejandro-4v/Tamagotchi4V)
